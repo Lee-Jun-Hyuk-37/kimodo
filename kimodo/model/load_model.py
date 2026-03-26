@@ -81,8 +81,14 @@ def _select_text_encoder_conf(text_encoder_url: str) -> dict:
     # TEXT_ENCODER_MODE options:
     # - "api": force TextEncoderAPI
     # - "local": force local LLM2VecEncoder
+    # - "dummy": zero-vector encoder (no LLM needed, constraint-only)
     # - "auto": try API first, fallback to local if unreachable
     mode = get_env_var("TEXT_ENCODER_MODE", "auto").lower()
+    if mode == "dummy":
+        return {
+            "_target_": "kimodo.model.llm2vec.llm2vec_wrapper.DummyTextEncoder",
+            "llm_dim": 4096,
+        }
     if mode == "local":
         return _build_local_text_encoder_conf()
     if mode == "api":
