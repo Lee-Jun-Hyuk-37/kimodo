@@ -48,7 +48,9 @@ class LLM2VecEncoder:
         if quantization_config is not None:
             extra_kwargs["quantization_config"] = quantization_config
             extra_kwargs["device_map"] = "auto"
-            print("[Kimodo] Using 4-bit quantization (NF4) for text encoder to reduce VRAM usage")
+            extra_kwargs["merge_peft"] = True
+            mode = os.environ.get("KIMODO_QUANTIZE", "").lower()
+            print(f"[Kimodo] Using {mode} quantization for text encoder to reduce VRAM usage")
 
         self.model = LLM2Vec.from_pretrained(
             base_model_name_or_path=base_model_name_or_path,

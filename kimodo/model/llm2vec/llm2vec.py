@@ -139,7 +139,22 @@ class LLM2Vec(nn.Module):
 
         model_class = cls._get_model_class(config_class_name, enable_bidirectional=enable_bidirectional)
 
-        model = model_class.from_pretrained(base_model_name_or_path, **kwargs)
+        # When quantization is active and the model dir contains adapter weights,
+        # load the pure base model first to avoid transformers auto-adapter
+        # loading conflicts with quantized weights.
+        has_quantization = "quantization_config" in kwargs
+        adapter_config_path = os.path.join(base_model_name_or_path, "adapter_config.json") if os.path.isdir(base_model_name_or_path) else None
+        has_local_adapter = adapter_config_path and os.path.exists(adapter_config_path)
+
+        if has_quantization and has_local_adapter:
+            with open(adapter_config_path, "r") as fIn:
+                adapter_cfg = json.load(fIn)
+            real_base = adapter_cfg.get("base_model_name_or_path", base_model_name_or_path)
+            model = model_class.from_pretrained(real_base, **kwargs)
+            model = PeftModel.from_pretrained(model, base_model_name_or_path)
+            model = model.merge_and_unload()
+        else:
+            model = model_class.from_pretrained(base_model_name_or_path, **kwargs)
 
         if os.path.isdir(base_model_name_or_path) and os.path.exists(f"{base_model_name_or_path}/config.json"):
             with open(f"{base_model_name_or_path}/config.json", "r") as fIn:
@@ -148,7 +163,7 @@ class LLM2Vec(nn.Module):
             model.config._name_or_path = config._name_or_path
 
         # For special case where config.json and adapter weights are in the same directory
-        if hasattr(model, "peft_config"):
+        if not (has_quantization and has_local_adapter) and hasattr(model, "peft_config"):
             model = PeftModel.from_pretrained(
                 model,
                 base_model_name_or_path,
