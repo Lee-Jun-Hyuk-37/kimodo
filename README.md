@@ -5,8 +5,18 @@ conda activate kimodo
 set KIMODO_QUANTIZE=4bit
 set TEXT_ENCODER_MODE=local
 set TEXT_ENCODERS_DIR=C:\Users\jun_hyuk\.llama\hf
-python -m kimodo.demo
+python -m kimodo.demo --model Kimodo-SOMA-RP-v1
 ```
+
+Use `--model` to select which model to load at startup. Switching models in the UI loads an additional model without releasing the previous one, which can cause VRAM issues. Restart the server with a different `--model` instead.
+
+| Model | Skeleton | Training Data |
+|---|---|---|
+| `Kimodo-SOMA-RP-v1` (default) | SOMA 77-joint human | Bones Rigplay 1 (700h) |
+| `Kimodo-G1-RP-v1` | Unitree G1 robot | Bones Rigplay 1 (700h) |
+| `Kimodo-SMPLX-RP-v1` | SMPL-X 22-joint human | Bones Rigplay 1 (700h) |
+| `Kimodo-SOMA-SEED-v1` | SOMA 77-joint human | BONES-SEED (288h) |
+| `Kimodo-G1-SEED-v1` | Unitree G1 robot | BONES-SEED (288h) |
 
 Open http://localhost:7860 in browser. See [docs/llama_setup.md](docs/llama_setup.md) for Llama model setup details.
 
