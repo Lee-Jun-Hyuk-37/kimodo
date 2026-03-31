@@ -1,3 +1,17 @@
+## Local Demo Server (Quick Start)
+
+```powershell
+conda activate kimodo
+set KIMODO_QUANTIZE=4bit
+set TEXT_ENCODER_MODE=local
+set TEXT_ENCODERS_DIR=C:\Users\jun_hyuk\.llama\hf
+python -m kimodo.demo
+```
+
+Open http://localhost:7860 in browser. See [docs/llama_setup.md](docs/llama_setup.md) for Llama model setup details.
+
+---
+
 <p align="center">
   <img src="./assets/banner.png" alt="Banner" width="100%">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-76B900.svg" alt="License"></a>
